@@ -65,12 +65,39 @@ public class IpDataService {
                     .entity(new ErrorMsg("1", String.format("IP %s doesn't exist", ipRq.getIp())))
                     .build();
         }
-        return Response.ok(ipRq).build();
+        ipEntity = updateIpData(ipRq);
+
+        IpRs rs = new IpRs();
+        rs.setIp(ipEntity.getIp());
+        rs.setDomainName(ipEntity.getDomain().getDomainName());
+        rs.setComment(ipEntity.getComment());
+        return Response.ok(rs).build();
     }
 
     @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
-    protected void updateIpData(IpAddRq ipRq, IpEntity ipEntity) {
-        //ipEntity.setDomain(ipRq.getDomainName());
+    protected IpEntity updateIpData(IpAddRq ipRq) {
+        IpEntity ipEntity = IpEntity.findByIp(ipRq.getIp());
+        if (!ipRq.getDomainName().isEmpty()) {
+            Domain domain = Domain.findByDomain(ipRq.getDomainName());
+            if (domain == null) {
+                domain = createNewDomain(ipRq.getDomainName());
+            }
+            ipEntity.setDomain(domain);
+        }
+
+        if (!ipRq.getComment().isEmpty()) {
+            ipEntity.setComment(ipRq.getComment());
+        }
+        return ipEntity;
+    }
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
+    protected Domain createNewDomain(String domainName) {
+        Domain domain = new Domain();
+        domain.setDomain(domainName);
+        domain.setDateAdded(new Date());
+        domain.persist();
+        return domain;
     }
 
     @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
