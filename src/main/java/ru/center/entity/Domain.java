@@ -16,10 +16,10 @@ import java.util.List;
 public class Domain extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "bigserial")
+    @Column(name = "id", columnDefinition = "bigint unsigned")
     private Long id;
 
-    @Column(name = "domain", columnDefinition = "text")
+    @Column(name = "domain", columnDefinition = "varchar(255)")
     private String domain;
 
     @Column(name = "date_added", columnDefinition = "timestamp")

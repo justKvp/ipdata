@@ -10,32 +10,33 @@ import java.util.Date;
 
 @Entity
 @Table(
-        name = "ip_data"
+        name = "ipdata"
 )
 public class IpEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "bigserial")
+    @Column(name = "id", columnDefinition = "bigint unsigned")
     private Long id;
 
     @ManyToOne(
             fetch = FetchType.LAZY
     )
     @JoinColumn(
-            name = "domain_id"
+            name = "domain_id",
+            columnDefinition = "bigint unsigned"
     )
     @JsonIgnore
     private Domain domain;
 
-    @Column(name = "ip", columnDefinition = "text")
+    @Column(name = "ip", columnDefinition = "varchar(96)")
     private String ip;
 
     @Column(name = "date_added", columnDefinition = "timestamp")
     @JsonProperty(value = "date_added")
     private Date dateAdded;
 
-    @Column(name = "comment", columnDefinition = "text")
+    @Column(name = "comment", columnDefinition = "varchar(255)")
     @JsonProperty(value = "comment")
     private String comment;
 
