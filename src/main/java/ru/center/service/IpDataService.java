@@ -18,10 +18,7 @@ public class IpDataService {
     public Response getIp(IpRq ipRq) {
         IpEntity entity = IpEntity.findByIp(ipRq.getIp());
         if (entity != null) {
-            IpRs rs = new IpRs();
-            rs.setIp(entity.getIp());
-            rs.setDomainName(entity.getDomain().getDomainName());
-            rs.setComment(entity.getComment());
+            IpRs rs = new IpRs(entity);
             return Response.ok(rs).build();
         }
         return Response.status(Response.Status.EXPECTATION_FAILED)
@@ -51,10 +48,7 @@ public class IpDataService {
             ipEntity = addIpWithDomain(ipRq);
         }
 
-        IpRs rs = new IpRs();
-        rs.setIp(ipEntity.getIp());
-        rs.setDomainName(ipEntity.getDomain().getDomainName());
-        rs.setComment(ipEntity.getComment());
+        IpRs rs = new IpRs(ipEntity);
         return Response.ok(rs).build();
     }
 
@@ -67,10 +61,7 @@ public class IpDataService {
         }
         ipEntity = updateIpData(ipRq);
 
-        IpRs rs = new IpRs();
-        rs.setIp(ipEntity.getIp());
-        rs.setDomainName(ipEntity.getDomain().getDomainName());
-        rs.setComment(ipEntity.getComment());
+        IpRs rs = new IpRs(ipEntity);
         return Response.ok(rs).build();
     }
 
