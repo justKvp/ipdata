@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.Response;
 import ru.center.dto.DomainRq;
 import ru.center.dto.ErrorMsg;
 import ru.center.entity.Domain;
+import ru.center.util.RUtil;
 
 import java.util.Date;
 
@@ -19,28 +20,22 @@ public class DomainDataService {
     public Response getDomain(DomainRq domainRq) {
         Domain domain = Domain.findByDomain(domainRq.getDomainName());
         if (domain != null) {
-            return Response.ok(domain).build();
+            return RUtil.success(domain);
         }
-        return Response.status(Response.Status.EXPECTATION_FAILED)
-                .entity(new ErrorMsg("1", String.format("Domain %s doesn't exist", domainRq.getDomainName())))
-                .build();
+        return RUtil.expectationFailed(new ErrorMsg("1", String.format("Domain %s doesn't exist", domainRq.getDomainName())));
     }
 
     public Response addDomain(DomainRq domainRq) {
         Domain domain = Domain.findByDomain(domainRq.getDomainName());
         if (domain != null) {
-            return Response.status(Response.Status.EXPECTATION_FAILED)
-                    .entity(new ErrorMsg("1", String.format("Domain %s already exist", domainRq.getDomainName())))
-                    .build();
+            return RUtil.expectationFailed(new ErrorMsg("1", String.format("Domain %s already exist", domainRq.getDomainName())));
         }
 
         if (domainRq.getDomainName().isEmpty()) {
-            return Response.status(Response.Status.EXPECTATION_FAILED)
-                    .entity(new ErrorMsg("1", "Domain should not be Empty"))
-                    .build();
+            return RUtil.expectationFailed(new ErrorMsg("1", "Domain should not be Empty"));
         }
         domain = createNewDomain(domainRq.getDomainName());
-        return Response.ok(domain).build();
+        return RUtil.success(domain);
     }
 
     @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)

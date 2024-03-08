@@ -9,6 +9,7 @@ import ru.center.dto.IpRq;
 import ru.center.dto.IpRs;
 import ru.center.entity.Domain;
 import ru.center.entity.IpEntity;
+import ru.center.util.RUtil;
 
 import java.util.Date;
 
@@ -19,25 +20,19 @@ public class IpDataService {
         IpEntity entity = IpEntity.findByIp(ipRq.getIp());
         if (entity != null) {
             IpRs rs = new IpRs(entity);
-            return Response.ok(rs).build();
+            return RUtil.success(rs);
         }
-        return Response.status(Response.Status.EXPECTATION_FAILED)
-                .entity(new ErrorMsg("1", String.format("IP %s doesn't exist", ipRq.getIp())))
-                .build();
+        return RUtil.expectationFailed(new ErrorMsg("1", String.format("IP %s doesn't exist", ipRq.getIp())));
     }
 
     public Response addIp(IpAddRq ipRq) {
         IpEntity ipEntity = IpEntity.findByIp(ipRq.getIp());
         if (ipEntity != null) {
-            return Response.status(Response.Status.EXPECTATION_FAILED)
-                    .entity(new ErrorMsg("1", String.format("IP %s already exist", ipRq.getIp())))
-                    .build();
+            return RUtil.expectationFailed(new ErrorMsg("1", String.format("IP %s already exist", ipRq.getIp())));
         }
 
         if (ipRq.getDomainName().isEmpty()) {
-            return Response.status(Response.Status.EXPECTATION_FAILED)
-                    .entity(new ErrorMsg("1", "Domain should not be Empty"))
-                    .build();
+            return RUtil.expectationFailed(new ErrorMsg("1", "Domain should not be Empty"));
         }
 
         Domain domain = Domain.findByDomain(ipRq.getDomainName());
@@ -49,20 +44,17 @@ public class IpDataService {
         }
 
         IpRs rs = new IpRs(ipEntity);
-        return Response.ok(rs).build();
+        return RUtil.success(rs);
     }
 
     public Response updateIp(IpAddRq ipRq) {
         IpEntity ipEntity = IpEntity.findByIp(ipRq.getIp());
         if (ipEntity == null) {
-            return Response.status(Response.Status.EXPECTATION_FAILED)
-                    .entity(new ErrorMsg("1", String.format("IP %s doesn't exist", ipRq.getIp())))
-                    .build();
+            return RUtil.expectationFailed(new ErrorMsg("1", String.format("IP %s doesn't exist", ipRq.getIp())));
         }
         ipEntity = updateIpData(ipRq);
-
         IpRs rs = new IpRs(ipEntity);
-        return Response.ok(rs).build();
+        return RUtil.success(rs);
     }
 
     @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
