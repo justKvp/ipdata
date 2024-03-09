@@ -20,7 +20,7 @@ public class DomainResource {
         return domainDataService.getDomain(domainRq);
     }
 
-    @GET
+    @POST
     @Path("/getAllDomains")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllDomains() {
