@@ -1,20 +1,22 @@
 package ru.center.service;
 
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import ru.center.dto.DomainRq;
 import ru.center.dto.ErrorMsg;
 import ru.center.entity.Domain;
+import ru.center.interfaces.CommonHelper;
 import ru.center.util.RUtil;
 
-import java.util.Date;
-
 @ApplicationScoped
-public class DomainDataService {
+public class DomainDataService implements CommonHelper {
 
     public Response getAllDomains() {
-        return Response.ok(Domain.findAll().list()).build();
+        return RUtil.success(Domain
+                .findAll(Sort.by("id"))
+                .list()
+        );
     }
 
     public Response getDomain(DomainRq domainRq) {
@@ -36,14 +38,5 @@ public class DomainDataService {
         }
         domain = createNewDomain(domainRq.getDomainName());
         return RUtil.success(domain);
-    }
-
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
-    protected Domain createNewDomain(String domainName) {
-        Domain domain = new Domain();
-        domain.setDomain(domainName);
-        domain.setDateAdded(new Date());
-        domain.persist();
-        return domain;
     }
 }

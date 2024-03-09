@@ -8,7 +8,7 @@ import ru.center.entity.IpEntity;
 
 import java.util.Date;
 
-@JsonPropertyOrder({"ip_address", "domain", "date_added", "comment"})
+@JsonPropertyOrder({"id", "domain", "ip_address", "date_added", "comment"})
 public class IpRs {
     @Schema(required = true, description = "id")
     @NotNull(message = "id not exist")

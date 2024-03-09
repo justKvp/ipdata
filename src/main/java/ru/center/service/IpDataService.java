@@ -1,7 +1,7 @@
 package ru.center.service;
 
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import ru.center.dto.ErrorMsg;
 import ru.center.dto.IpAddRq;
@@ -9,12 +9,14 @@ import ru.center.dto.IpRq;
 import ru.center.dto.IpRs;
 import ru.center.entity.Domain;
 import ru.center.entity.IpEntity;
+import ru.center.interfaces.CommonHelper;
 import ru.center.util.RUtil;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
-public class IpDataService {
+public class IpDataService implements CommonHelper {
 
     public Response getIp(IpRq ipRq) {
         IpEntity entity = IpEntity.findByIp(ipRq.getIp());
@@ -23,6 +25,18 @@ public class IpDataService {
             return RUtil.success(rs);
         }
         return RUtil.expectationFailed(new ErrorMsg("1", String.format("IP %s doesn't exist", ipRq.getIp())));
+    }
+
+    public Response getAllIps() {
+        List<IpEntity> ipEntityList = IpEntity
+                .findAll(Sort.by("id"))
+                .list();
+
+        List<IpRs> irs = new ArrayList<>();
+        for(IpEntity entity : ipEntityList) {
+            irs.add(new IpRs(entity));
+        }
+        return RUtil.success(irs);
     }
 
     public Response addIp(IpAddRq ipRq) {
@@ -38,8 +52,7 @@ public class IpDataService {
         Domain domain = Domain.findByDomain(ipRq.getDomainName());
         if (domain != null) {
             ipEntity = addIp(ipRq, domain);
-        }
-        else {
+        } else {
             ipEntity = addIpWithDomain(ipRq);
         }
 
@@ -55,58 +68,5 @@ public class IpDataService {
         ipEntity = updateIpData(ipRq);
         IpRs rs = new IpRs(ipEntity);
         return RUtil.success(rs);
-    }
-
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
-    protected IpEntity updateIpData(IpAddRq ipRq) {
-        IpEntity ipEntity = IpEntity.findByIp(ipRq.getIp());
-        if (!ipRq.getDomainName().isEmpty()) {
-            Domain domain = Domain.findByDomain(ipRq.getDomainName());
-            if (domain == null) {
-                domain = createNewDomain(ipRq.getDomainName());
-            }
-            ipEntity.setDomain(domain);
-        }
-
-        if (!ipRq.getComment().isEmpty()) {
-            ipEntity.setComment(ipRq.getComment());
-        }
-        return ipEntity;
-    }
-
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
-    protected Domain createNewDomain(String domainName) {
-        Domain domain = new Domain();
-        domain.setDomain(domainName);
-        domain.setDateAdded(new Date());
-        domain.persist();
-        return domain;
-    }
-
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
-    protected IpEntity addIpWithDomain(IpAddRq ipRq) {
-        Domain domain = new Domain();
-        domain.setDomain(ipRq.getDomainName());
-        domain.setDateAdded(new Date());
-        domain.persist();
-
-        IpEntity ipEntity = new IpEntity();
-        ipEntity.setIp(ipRq.getIp());
-        ipEntity.setDateAdded(new Date());
-        ipEntity.setComment(ipRq.getComment());
-        ipEntity.setDomain(domain);
-        ipEntity.persist();
-        return ipEntity;
-    }
-
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
-    protected IpEntity addIp(IpAddRq ipRq, Domain domain) {
-        IpEntity ipEntity = new IpEntity();
-        ipEntity.setIp(ipRq.getIp());
-        ipEntity.setDateAdded(new Date());
-        ipEntity.setComment(ipRq.getComment());
-        ipEntity.setDomain(domain);
-        ipEntity.persist();
-        return ipEntity;
     }
 }
