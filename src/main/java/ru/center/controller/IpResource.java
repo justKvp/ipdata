@@ -22,7 +22,7 @@ public class IpResource {
     }
 
     @GET
-    @Path("/getAllIps")
+    @Path("/getListIP")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllIps() {
         return ipDataService.getAllIps();
