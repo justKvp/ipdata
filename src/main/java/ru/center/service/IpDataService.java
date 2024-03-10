@@ -2,6 +2,7 @@ package ru.center.service;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import ru.center.dto.ErrorMsg;
 import ru.center.dto.IpAddRq;
@@ -39,6 +40,7 @@ public class IpDataService implements CommonHelper {
         return RUtil.success(irs);
     }
 
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
     public Response addIp(IpAddRq ipRq) {
         IpEntity ipEntity = IpEntity.findByIp(ipRq.getIp());
         if (ipEntity != null) {
@@ -60,6 +62,7 @@ public class IpDataService implements CommonHelper {
         return RUtil.success(rs);
     }
 
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
     public Response updateIp(IpAddRq ipRq) {
         IpEntity ipEntity = IpEntity.findByIp(ipRq.getIp());
         if (ipEntity == null) {

@@ -2,6 +2,7 @@ package ru.center.service;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import ru.center.dto.DomainRq;
 import ru.center.dto.ErrorMsg;
@@ -27,6 +28,7 @@ public class DomainDataService implements CommonHelper {
         return RUtil.expectationFailed(new ErrorMsg("1", String.format("Domain %s doesn't exist", domainRq.getDomainName())));
     }
 
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW, rollbackOn = Exception.class)
     public Response addDomain(DomainRq domainRq) {
         Domain domain = Domain.findByDomain(domainRq.getDomainName());
         if (domain != null) {
